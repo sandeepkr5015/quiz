@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create User Table -->
+    <changeSet id="create-user-table-4" author="sandeep">
+        <createTable tableName="quizuser">
+            <column name="user_id" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create Question Table -->
+    <changeSet id="create-question-table-4" author="sandeep">
+        <createTable tableName="question">
+            <column name="question_id" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="question_text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create Answer Table -->
+    <changeSet id="create-answer-table-5" author="sandeep">
+        <createTable tableName="answer">
+            <column name="answer_id" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="question_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="answer_text" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_correct" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create Game Session Table -->
+    <changeSet id="create-game-session-table-5" author="sandeep">
+        <createTable tableName="game_session">
+            <column name="session_id" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_question_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="score" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lifeline_10s_used" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lifeline_5050_used" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_completed" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="addAskedQuestionIdsColumn" author="sandeep">
+        <addColumn tableName="game_session">
+            <column name="asked_question_ids" type="text" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="addTimeTakenColumn" author="sandeep">
+        <addColumn tableName="game_session">
+            <column name="time_taken" type="INT" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add-constraints-5" author="sandeep">
+
+        <!-- Add foreign key constraint on Answer table referencing Question table -->
+        <addForeignKeyConstraint baseTableName="answer" baseColumnNames="question_id"
+                                 constraintName="fk_answer_question"
+                                 referencedTableName="question" referencedColumnNames="question_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
+        <!-- Add foreign key constraint on Game Session table referencing User table -->
+        <addForeignKeyConstraint baseTableName="game_session" baseColumnNames="user_id"
+                                 constraintName="fk_game_session_user"
+                                 referencedTableName="quizuser" referencedColumnNames="user_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
+        <addUniqueConstraint columnNames="question_id, answer_text"
+                             constraintName="question_answer_unique"
+                             tableName="answer"/>
+
+    </changeSet>
+
+</databaseChangeLog>
